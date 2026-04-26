@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shwasa · Air ID</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:      #f2f7f3;
+  --card:    rgba(255,255,255,0.78);
+  --border:  rgba(100,160,110,0.14);
+  --sage:    #6b9e7a;
+  --sage-l:  #9ec4aa;
+  --sage-d:  #3d6e52;
+  --sage-xl: #d4eadb;
+  --mist:    #e8f2ea;
+  --blush:   #e8a090;
+  --sand:    #c8955a;
+  --lav:     #a89cc0;
+  --sky:     #80b0cc;
+  --text:    #243028;
+  --text2:   #5a7060;
+  --text3:   #96b09a;
+  --shadow-s: 0 2px 20px rgba(60,100,70,0.08);
+  --shadow-m: 0 8px 36px rgba(60,100,70,0.12);
+  --shadow-l: 0 20px 56px rgba(60,100,70,0.16);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html, body { height:100%; }
+
+body {
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ── LIVING NATURE BACKGROUND ── */
+#bgCanvas {
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:0; pointer-events:none;
+}
+
+.wrap {
+  max-width:430px; margin:0 auto;
+  padding:28px 18px 72px;
+  position:relative; z-index:2;
+}
+
+/* ══ HEADER ══ */
+.header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:30px;
+  animation:slideDown 0.7s ease both;
+}
+
+.brand { display:flex; align-items:center; gap:10px; }
+
+.brand-logo {
+  width:42px; height:42px; border-radius:14px;
+  background:linear-gradient(135deg,var(--sage),var(--sage-l));
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; box-shadow:var(--shadow-m);
+  animation:breathe 4s ease-in-out infinite;
+}
+
+.brand-name {
+  font-family:'Playfair Display',serif;
+  font-weight:900; font-size:24px; color:var(--text);
+  letter-spacing:-0.5px;
+}
+
+.brand-sub {
+  font-size:10px; color:var(--text3);
+  letter-spacing:2px; text-transform:uppercase; margin-top:2px;
+}
+
+.live-pill {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.85);
+  border:1px solid var(--border);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow-s);
+  padding:7px 14px; border-radius:22px;
+  font-size:11px; font-weight:600; color:var(--sage-d);
+}
+
+.live-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--sage); animation:pulse 2s infinite;
+}
+
+/* ══ COMMIT BUBBLE SCREEN ══ */
+#commitScreen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.commit-screen-inner {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: 20px 0 48px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.commit-step-label {
+  font-size: 10px; color: var(--sage); letter-spacing: 3px;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 8px;
+}
+
+.commit-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 30px; color: var(--text);
+  letter-spacing: -0.5px; margin-bottom: 8px;
+}
+
+.commit-sub {
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  font-weight: 400; margin-bottom: 44px;
+}
+
+/* Orb stage */
+.orb-stage {
+  position: relative;
+  width: 220px; height: 220px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+}
+
+/* Pulsing glow rings */
+.orb-ring {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid rgba(107,158,122,0.22);
+  animation: orbRingPulse 3s ease-in-out infinite;
+}
+.orb-ring-1 { width: 220px; height: 220px; animation-delay: 0s; }
+.orb-ring-2 { width: 190px; height: 190px; animation-delay: 0.6s; opacity: 0.7; }
+.orb-ring-3 { width: 160px; height: 160px; animation-delay: 1.2s; opacity: 0.4; }
+
+@keyframes orbRingPulse {
+  0%,100% { transform: scale(1);    opacity: 0.5; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+
+/* SVG progress ring */
+.orb-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+
+.orb-track {
+  fill: none; stroke: rgba(107,158,122,0.12); stroke-width: 5;
+}
+
+.orb-progress {
+  fill: none;
+  stroke: url(#orbGrad);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 553; /* 2*PI*88 */
+  stroke-dashoffset: 553;
+  transition: stroke-dashoffset 0.05s linear;
+  filter: drop-shadow(0 0 8px rgba(107,158,122,0.6));
+}
+
+/* The bubble */
+.orb-bubble {
+  position: relative; z-index: 2;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: linear-gradient(145deg,
+    rgba(255,255,255,0.92),
+    rgba(225,242,230,0.85)
+  );
+  backdrop-filter: blur(28px);
+  border: 1.5px solid rgba(107,158,122,0.28);
+  box-shadow:
+    0 12px 40px rgba(107,158,122,0.22),
+    0 2px 8px rgba(107,158,122,0.12),
+    inset 0 2px 0 rgba(255,255,255,0.7);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.orb-bubble:active,
+.orb-bubble.pressing {
+  transform: scale(0.94);
+  box-shadow:
+    0 6px 24px rgba(107,158,122,0.38),
+    inset 0 2px 0 rgba(255,255,255,0.5);
+}
+
+.orb-bubble.pressing {
+  background: linear-gradient(145deg,
+    rgba(210,238,218,0.95),
+    rgba(180,220,195,0.88)
+  );
+}
+
+.orb-leaf-icon {
+  font-size: 34px;
+  transition: transform 0.3s;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.orb-bubble.pressing .orb-leaf-icon {
+  transform: scale(1.2) rotate(12deg);
+  animation: none;
+}
+
+.orb-label {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 13px; color: var(--sage-d);
+}
+
+.orb-timer {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 22px; color: var(--sage-d);
+  line-height: 1; opacity: 0; transition: opacity 0.2s;
+}
+
+.orb-bubble.pressing .orb-timer { opacity: 1; }
+.orb-bubble.pressing .orb-label { opacity: 0; }
+
+.orb-hint {
+  font-size: 12px; color: var(--text3);
+  font-weight: 500; margin-bottom: 32px;
+  letter-spacing: 0.3px;
+}
+
+/* Commitments strip */
+.commit-summary {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+}
+
+.commit-summary-item {
+  background: rgba(107,158,122,0.08);
+  border: 1px solid rgba(107,158,122,0.18);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: 11px; font-weight: 600; color: var(--sage-d);
+}
+
+/* ══ CELEBRATION SCREEN ══ */
+#celebScreen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.celeb-inner {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: 24px 16px 48px;
+  animation: fadeUp 0.6s ease both;
+  position: relative;
+}
+
+.celeb-leaf {
+  font-size: 64px; margin-bottom: 16px;
+  animation: leafSpin 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes leafSpin {
+  from { transform: rotate(-40deg) scale(0.3); opacity: 0; }
+  to   { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
+.celeb-badge-ring {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--sage-l));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 6px rgba(107,158,122,0.15), 0 12px 36px rgba(107,158,122,0.35);
+  margin-bottom: 24px;
+  animation: badgePop 0.7s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes badgePop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.celeb-badge-inner {
+  width: 74px; height: 74px; border-radius: 50%;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.celeb-badge-emoji {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 28px; color: var(--sage-d);
+}
+
+.celeb-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 36px; color: var(--text);
+  letter-spacing: -1px; margin-bottom: 2px;
+  animation: fadeUp 0.5s 0.4s ease both;
+}
+
+.celeb-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 20px; color: var(--sage-d);
+  margin-bottom: 16px;
+  animation: fadeUp 0.5s 0.5s ease both;
+}
+
+.celeb-desc {
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  margin-bottom: 24px; max-width: 320px;
+  animation: fadeUp 0.5s 0.55s ease both;
+}
+
+.celeb-ribbon {
+  background: linear-gradient(135deg, var(--sage), var(--sage-l));
+  color: white; font-weight: 700; font-size: 13px;
+  padding: 12px 28px; border-radius: 30px;
+  box-shadow: 0 6px 24px rgba(107,158,122,0.38);
+  margin-bottom: 32px; letter-spacing: 0.5px;
+  animation: fadeUp 0.5s 0.6s ease both;
+}
+
+.celeb-btn {
+  width: 100%; border: none; border-radius: 18px; padding: 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800; font-size: 16px;
+  background: linear-gradient(135deg, var(--sage-d), var(--sage));
+  color: white; cursor: pointer;
+  box-shadow: 0 8px 28px rgba(61,110,82,0.38);
+  transition: all 0.25s; letter-spacing: 0.3px;
+  animation: fadeUp 0.5s 0.7s ease both;
+}
+
+.celeb-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(61,110,82,0.45); }
+
+/* ══ COMMIT PLEDGE BTN (updated) ══ */
+.pledge-btn {
+  width: 100%; border: none; border-radius: 18px; padding: 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800; font-size: 16px; cursor: pointer;
+  transition: all 0.3s; letter-spacing: 0.3px;
+  background: rgba(107,158,122,0.12);
+  color: var(--text3);
+  border: 1.5px solid rgba(107,158,122,0.2);
+}
+
+.pledge-btn.ready {
+  background: linear-gradient(135deg, var(--sage), var(--sage-l));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 8px 28px rgba(107,158,122,0.42);
+}
+
+.pledge-btn.ready:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(107,158,122,0.5); }
+#pledgeScreen {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center; padding: 0 0 40px;
+}
+
+.pledge-leaf-top {
+  font-size: 72px;
+  animation: breathe 4s ease-in-out infinite;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 8px 24px rgba(107,158,122,0.3));
+}
+
+.pledge-brand {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 38px;
+  color: var(--sage-d); letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.pledge-tagline {
+  font-size: 13px; color: var(--text3);
+  letter-spacing: 3px; text-transform: uppercase;
+  font-weight: 600; margin-bottom: 32px;
+}
+
+.pledge-card {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(107,158,122,0.18);
+  border-radius: 28px; padding: 30px 24px;
+  margin-bottom: 22px; width: 100%;
+  box-shadow: var(--shadow-l);
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.pledge-oath-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 20px;
+  color: var(--text); margin-bottom: 6px;
+}
+
+.pledge-oath-sub {
+  font-size: 12px; color: var(--text3);
+  margin-bottom: 22px; font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.pledge-items {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px; text-align: left;
+}
+
+.pledge-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(107,158,122,0.06);
+  border: 1px solid rgba(107,158,122,0.14);
+  border-radius: 16px; padding: 14px 16px;
+  transition: all 0.3s; cursor: pointer;
+}
+
+.pledge-item.ticked {
+  background: linear-gradient(135deg, rgba(107,158,122,0.14), rgba(158,196,170,0.1));
+  border-color: rgba(107,158,122,0.4);
+}
+
+.pledge-check {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid rgba(107,158,122,0.4);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all 0.3s; margin-top: 1px;
+  background: white;
+}
+
+.pledge-item.ticked .pledge-check {
+  background: var(--sage); border-color: var(--sage); color: white;
+}
+
+.pledge-item-text { flex: 1; }
+.pledge-item-title { font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+.pledge-item-sub { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+.pledge-counter {
+  font-size: 12px; color: var(--text3); margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.pledge-counter span { color: var(--sage-d); font-weight: 800; font-size: 15px; }
+
+.pledge-btn-old { display:none; } /* removed */
+
+/* ── 3-second hold bubble ── */
+.hold-bubble-wrap {
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  margin-bottom:6px; opacity:0.35; transition:opacity 0.4s;
+  pointer-events:none;
+}
+.hold-bubble-wrap.ready {
+  opacity:1; pointer-events:all;
+}
+
+.hold-bubble {
+  position:relative; width:120px; height:120px;
+  cursor:pointer; user-select:none; -webkit-user-select:none;
+}
+
+.hold-ring {
+  position:absolute; inset:0; width:100%; height:100%;
+  transform:rotate(-90deg);
+}
+
+.hold-ring-track {
+  fill:none; stroke:rgba(107,158,122,0.18); stroke-width:5;
+}
+
+.hold-ring-fill {
+  fill:none; stroke:var(--sage); stroke-width:5;
+  stroke-linecap:round;
+  stroke-dasharray: 326.7; /* 2*PI*52 */
+  stroke-dashoffset: 326.7;
+  transition:stroke-dashoffset 0.05s linear;
+  filter:drop-shadow(0 0 6px rgba(107,158,122,0.5));
+}
+
+.hold-bubble-inner {
+  position:absolute; inset:8px; border-radius:50%;
+  background:linear-gradient(145deg, rgba(255,255,255,0.88), rgba(232,244,236,0.8));
+  backdrop-filter:blur(20px);
+  border:1.5px solid rgba(107,158,122,0.25);
+  box-shadow: 0 8px 32px rgba(107,158,122,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; transition:all 0.2s;
+}
+
+.hold-bubble-inner.pressing {
+  background:linear-gradient(145deg,rgba(107,158,122,0.15),rgba(158,196,170,0.2));
+  box-shadow:0 4px 20px rgba(107,158,122,0.35), inset 0 1px 0 rgba(255,255,255,0.5);
+  transform:scale(0.96);
+}
+
+.hold-leaf { font-size:28px; transition:transform 0.2s; }
+.hold-bubble-inner.pressing .hold-leaf { transform:scale(1.15) rotate(15deg); }
+
+.hold-text {
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700; font-size:11px; color:var(--sage-d);
+  text-align:center; line-height:1.3; letter-spacing:0.3px;
+}
+
+.hold-hint {
+  font-size:11px; color:var(--text3); font-weight:500;
+  letter-spacing:0.3px;
+}
+
+/* ── Committed overlay (shown after hold completes) ── */
+.committed-overlay {
+  position:fixed; inset:0; z-index:999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:rgba(232,244,236,0.0);
+  transition:background 0.6s ease;
+  pointer-events:none; opacity:0;
+}
+
+.committed-overlay.show {
+  pointer-events:all; opacity:1;
+  background:rgba(225,242,230,0.96);
+}
+
+.committed-burst {
+  position:relative; text-align:center;
+  transform:scale(0.5); opacity:0;
+  transition:transform 0.7s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease;
+}
+
+.committed-burst.pop {
+  transform:scale(1); opacity:1;
+}
+
+.committed-big-leaf {
+  font-size:90px; display:block; margin-bottom:16px;
+  animation:leafSpin 1s ease both;
+}
+
+.committed-title {
+  font-family:'Playfair Display',serif;
+  font-weight:900; font-size:32px;
+  color:var(--sage-d); letter-spacing:-1px;
+  margin-bottom:8px;
+}
+
+.committed-sub {
+  font-size:14px; color:var(--text2);
+  font-weight:500; line-height:1.6;
+  margin-bottom:28px;
+}
+
+.committed-ribbon {
+  display:inline-flex; align-items:center; gap:10px;
+  background:linear-gradient(135deg,var(--sage),var(--sage-l));
+  color:white; font-weight:700; font-size:13px;
+  padding:12px 28px; border-radius:30px; letter-spacing:0.5px;
+  box-shadow:0 8px 28px rgba(107,158,122,0.45);
+  margin-bottom:24px;
+}
+
+.committed-particles {
+  position:absolute; inset:0; pointer-events:none;
+}
+
+@keyframes leafSpin {
+  from { transform:rotate(-30deg) scale(0.5); opacity:0; }
+  to   { transform:rotate(0deg) scale(1); opacity:1; }
+}
+@keyframes particleFly {
+  0%   { transform:translate(0,0) rotate(0deg); opacity:1; }
+  100% { transform:translate(var(--tx),var(--ty)) rotate(360deg); opacity:0; }
+}
+
+.pledge-signatories {
+  font-size: 11px; color: var(--text3); font-weight: 500;
+  margin-top: 14px; line-height: 1.7;
+}
+
+.pledge-signatories strong { color: var(--sage-d); font-weight: 700; }
+
+.pledge-avatars {
+  display: flex; justify-content: center; gap: -6px;
+  margin-bottom: 6px;
+}
+
+.pledge-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; margin-left: -6px;
+  box-shadow: 0 2px 8px rgba(60,100,70,0.15);
+}
+
+.pledge-avatar:first-child { margin-left: 0; }
+
+/* Wind gust indicator */
+.wind-bar {
+  display: flex; align-items: center; gap: 8px;
+  justify-content: center; margin-top: 18px;
+  animation: fadeUp 0.7s 0.5s ease both;
+}
+.wind-label { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+.wind-dots { display: flex; gap: 4px; }
+.wind-dot-w {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sage-l); opacity: 0.3;
+  animation: windPulse 1.8s ease-in-out infinite;
+}
+.wind-dot-w:nth-child(2){ animation-delay: 0.2s; }
+.wind-dot-w:nth-child(3){ animation-delay: 0.4s; }
+.wind-dot-w:nth-child(4){ animation-delay: 0.6s; }
+.wind-dot-w:nth-child(5){ animation-delay: 0.8s; }
+
+@keyframes windPulse {
+  0%,100%{ opacity:0.2; transform:scaleX(1); }
+  50%     { opacity:1;   transform:scaleX(1.6); }
+}
+.aqi-widget {
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:20px; padding:16px 18px;
+  margin-bottom:16px;
+  display:flex; align-items:center; gap:14px;
+  box-shadow:var(--shadow-m);
+  animation:fadeUp 0.6s 0.1s ease both;
+}
+
+.aqi-ring-wrap { position:relative; flex-shrink:0; }
+
+.aqi-ring {
+  width:64px; height:64px; border-radius:50%;
+  background:conic-gradient(var(--sage) 0% 68%, rgba(200,220,205,0.25) 68% 100%);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 3px rgba(107,158,122,0.15);
+  animation:spinSlow 12s linear infinite;
+}
+
+.aqi-inner {
+  width:48px; height:48px; border-radius:50%;
+  background:white; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  animation:spinSlow 12s linear infinite reverse;
+}
+
+.aqi-val {
+  font-family:'Playfair Display',serif;
+  font-weight:900; font-size:17px; color:var(--sage-d); line-height:1;
+}
+
+.aqi-label-sm { font-size:8px; color:var(--text3); font-weight:600; letter-spacing:1px; }
+
+.aqi-info { flex:1; }
+
+.aqi-title {
+  font-weight:700; font-size:14px; color:var(--text); margin-bottom:3px;
+}
+
+.aqi-sub { font-size:11px; color:var(--text2); line-height:1.5; }
+
+.aqi-badge {
+  font-size:10px; font-weight:700;
+  background:linear-gradient(135deg,rgba(107,158,122,0.15),rgba(158,196,170,0.2));
+  color:var(--sage-d); padding:4px 10px; border-radius:20px;
+  letter-spacing:0.5px; margin-top:6px; display:inline-block;
+}
+
+/* ══ STEPS ══ */
+.steps-row {
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:22px;
+}
+
+.step-dot {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,0.8); border:2px solid rgba(100,160,110,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; color:var(--text3);
+  transition:all 0.4s; flex-shrink:0;
+  box-shadow:var(--shadow-s);
+  backdrop-filter:blur(8px);
+}
+
+.step-dot.active {
+  background:linear-gradient(135deg,var(--sage),var(--sage-l));
+  border-color:transparent; color:white;
+  box-shadow:0 4px 18px rgba(107,158,122,0.45);
+  transform:scale(1.12);
+}
+
+.step-dot.done {
+  background:rgba(107,158,122,0.12);
+  border-color:rgba(107,158,122,0.3); color:var(--sage);
+}
+
+.step-line {
+  flex:1; height:2px; max-width:46px;
+  background:rgba(100,160,110,0.15); transition:background 0.4s;
+}
+.step-line.done { background:var(--sage-l); }
+
+/* ══ GLASS CARD ══ */
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:26px; padding:26px 22px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-m);
+  backdrop-filter:blur(24px);
+  animation:fadeUp 0.5s ease both;
+}
+
+.q-label {
+  font-size:10px; color:var(--text3);
+  letter-spacing:2px; text-transform:uppercase;
+  font-weight:600; margin-bottom:8px;
+}
+
+.q-text {
+  font-family:'Playfair Display',serif;
+  font-weight:700; font-size:19px;
+  color:var(--text); line-height:1.35; margin-bottom:22px;
+}
+
+/* Options */
+.opts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.opt-btn {
+  background:rgba(255,255,255,0.9);
+  border:1.5px solid rgba(100,160,110,0.18);
+  border-radius:18px; padding:16px 10px;
+  cursor:pointer; transition:all 0.25s; text-align:center;
+  box-shadow:var(--shadow-s);
+}
+
+.opt-btn:hover {
+  border-color:var(--sage-l);
+  box-shadow:0 6px 22px rgba(107,158,122,0.22);
+  transform:translateY(-2px);
+}
+
+.opt-btn.sel {
+  border-color:var(--sage);
+  background:linear-gradient(135deg,rgba(107,158,122,0.1),rgba(158,196,170,0.14));
+  box-shadow:0 6px 22px rgba(107,158,122,0.28);
+}
+
+.opt-emoji { font-size:24px; margin-bottom:6px; }
+.opt-label { font-weight:700; font-size:12px; color:var(--text); }
+.opt-sub { font-size:10px; color:var(--text3); margin-top:2px; }
+
+/* Dims */
+.dims-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:6px; }
+.dim-wrap { display:flex; flex-direction:column; gap:6px; }
+.dim-label { font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; font-weight:600; text-align:center; }
+
+.dim-row {
+  display:flex; align-items:center;
+  background:rgba(255,255,255,0.9);
+  border:1.5px solid rgba(100,160,110,0.2);
+  border-radius:14px; overflow:hidden;
+  box-shadow:var(--shadow-s);
+}
+.dim-row:focus-within { border-color:var(--sage); }
+
+.dim-btn {
+  background:transparent; border:none;
+  color:var(--sage-d); font-size:20px;
+  width:32px; height:46px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s; flex-shrink:0;
+}
+.dim-btn:hover { background:rgba(107,158,122,0.1); }
+
+.dim-num {
+  flex:1; text-align:center; font-weight:700; font-size:15px;
+  color:var(--text); background:transparent;
+  border:none; outline:none; width:0; min-width:0;
+}
+
+.vol-pill {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin-top:14px; background:rgba(107,158,122,0.08);
+  border:1px solid rgba(107,158,122,0.2);
+  border-radius:12px; padding:10px 16px;
+  font-size:12px; color:var(--text2);
+}
+.vol-pill strong { color:var(--sage-d); font-weight:700; }
+.dims-unit { text-align:center; font-size:11px; color:var(--text3); margin-top:8px; font-weight:500; }
+
+/* Slider */
+.slider-wrap { padding:4px 0 8px; }
+.slider-big {
+  font-family:'Playfair Display',serif; font-weight:900; font-size:60px;
+  color:var(--sage-d); text-align:center; margin-bottom:4px; letter-spacing:-2px; line-height:1;
+}
+.slider-unit-text { text-align:center; font-size:14px; color:var(--text3); margin-bottom:14px; font-weight:500; }
+
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:5px;
+  border-radius:3px; outline:none; margin:8px 0;
+  background:linear-gradient(90deg,var(--sage-l),rgba(200,149,90,0.4));
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:26px; height:26px; border-radius:50%;
+  background:white; cursor:pointer;
+  box-shadow:0 2px 12px rgba(107,158,122,0.4), 0 0 0 3px var(--sage);
+}
+.slider-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--text3); font-weight:500; margin-top:4px; }
+
+/* Next btn */
+.next-btn {
+  width:100%;
+  background:linear-gradient(135deg,var(--sage),var(--sage-l));
+  color:white; border:none; border-radius:18px; padding:17px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; transition:all 0.25s;
+  box-shadow:0 6px 24px rgba(107,158,122,0.38);
+  margin-top:6px;
+}
+.next-btn:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(107,158,122,0.48); }
+.next-btn.shake { background:linear-gradient(135deg,#e8a090,#f2c4a0)!important; }
+
+/* ══ LOADING ══ */
+#loadingScreen {
+  display:none; text-align:center; padding:60px 20px;
+}
+
+.breath-ring {
+  width:100px; height:100px; border-radius:50%;
+  background:linear-gradient(135deg,var(--sage),var(--sage-l));
+  margin:0 auto 28px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:38px;
+  animation:breathe 3s ease-in-out infinite;
+  box-shadow:0 0 0 0 rgba(107,158,122,0.4);
+  animation:breathePulse 3s ease-in-out infinite;
+}
+
+.loading-title { font-family:'Playfair Display',serif; font-weight:700; font-size:22px; color:var(--text); margin-bottom:6px; }
+.loading-sub { font-size:12px; color:var(--text3); margin-bottom:28px; font-weight:500; }
+
+.load-steps { list-style:none; text-align:left; display:inline-block; }
+.load-steps li {
+  font-size:12px; color:var(--text3); padding:5px 0;
+  display:flex; align-items:center; gap:10px;
+  transition:color 0.3s; font-weight:500;
+}
+.load-steps li::before { content:'○'; font-size:10px; }
+.load-steps li.done { color:var(--sage); }
+.load-steps li.done::before { content:'✓'; }
+
+/* ══ RESULTS ══ */
+#resultsScreen { display:none; }
+
+/* ── HERO ── */
+.breath-hero {
+  position:relative; overflow:hidden;
+  border-radius:32px; padding:32px 26px 28px;
+  margin-bottom:12px;
+  background: linear-gradient(160deg, #1a2e22 0%, #0f2018 55%, #1c1a2e 100%);
+  box-shadow: 0 24px 60px rgba(20,50,30,0.35), 0 0 0 1px rgba(107,158,122,0.15);
+  animation:fadeUp 0.6s ease both;
+}
+
+.hero-glow-1 {
+  position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(107,158,122,0.28) 0%, transparent 70%);
+  animation:breathe 6s ease-in-out infinite;
+}
+.hero-glow-2 {
+  position:absolute; bottom:-30px; left:-20px;
+  width:150px; height:150px; border-radius:50%;
+  background:radial-gradient(circle, rgba(168,156,192,0.18) 0%, transparent 70%);
+  animation:breathe 8s ease-in-out infinite reverse;
+}
+
+.hero-tag {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:9px; color:rgba(158,196,170,0.8);
+  letter-spacing:2.5px; text-transform:uppercase; font-weight:700;
+  background:rgba(107,158,122,0.12);
+  border:1px solid rgba(107,158,122,0.25);
+  padding:5px 12px; border-radius:20px;
+  margin-bottom:20px;
+}
+
+.hero-num {
+  font-family:'Playfair Display',serif;
+  font-weight:900; font-size:68px;
+  color:#ffffff; letter-spacing:-3px; line-height:1;
+  position:relative; z-index:1;
+}
+
+.hero-unit {
+  font-size:12px; color:rgba(158,196,170,0.65);
+  font-weight:500; margin-top:4px; letter-spacing:0.5px;
+}
+
+.hero-desc {
+  font-size:12px; color:rgba(255,255,255,0.5);
+  line-height:1.75; margin-top:14px; position:relative; z-index:1;
+}
+.hero-desc strong { color:rgba(255,255,255,0.85); font-weight:600; }
+
+/* ── CIG HIGHLIGHT ── */
+.cig-highlight {
+  display:flex; align-items:center; gap:16px;
+  margin-top:20px;
+  background:rgba(232,160,144,0.1);
+  border:1px solid rgba(232,160,144,0.2);
+  border-radius:18px; padding:16px 18px;
+  position:relative; z-index:1;
+}
+.cig-hl-left { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.cig-hl-num {
+  font-family:'Playfair Display',serif; font-weight:900; font-size:48px;
+  color:#e8a090; letter-spacing:-2px; line-height:1;
+}
+.cig-hl-icon { font-size:22px; align-self:flex-end; padding-bottom:4px; }
+.cig-hl-right { flex:1; }
+.cig-hl-title { font-weight:700; font-size:12px; color:#e8c0b4; margin-bottom:3px; }
+.cig-hl-sub { font-size:10px; color:rgba(255,255,255,0.35); line-height:1.5; font-weight:400; }
+
+/* ── STATS GRID ── */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+
+.stat-card {
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(107,158,122,0.1);
+  border-radius:22px; padding:18px 16px;
+  box-shadow: 0 2px 16px rgba(60,100,70,0.07);
+  backdrop-filter:blur(20px);
+  animation:fadeUp 0.5s ease both; transition:transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(60,100,70,0.13); }
+.stat-card:nth-child(1){animation-delay:.05s}
+.stat-card:nth-child(2){animation-delay:.09s}
+.stat-card:nth-child(3){animation-delay:.13s}
+.stat-card:nth-child(4){animation-delay:.17s}
+
+.stat-icon { font-size:20px; margin-bottom:10px; }
+.stat-label { font-size:8.5px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; font-weight:700; margin-bottom:5px; }
+.stat-val { font-family:'Playfair Display',serif; font-weight:700; font-size:22px; color:var(--sage-d); }
+.stat-sub { font-size:9.5px; color:var(--text3); margin-top:2px; font-weight:500; }
+
+/* ── TIMELINE / BREAKDOWN ── */
+.timeline-card {
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(107,158,122,0.1);
+  border-radius:24px; padding:22px 20px;
+  margin-bottom:12px; box-shadow:0 2px 16px rgba(60,100,70,0.07);
+  backdrop-filter:blur(20px);
+  animation:fadeUp 0.5s 0.2s ease both;
+}
+.timeline-title { font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:var(--text); margin-bottom:3px; }
+.timeline-sub { font-size:10.5px; color:var(--text3); margin-bottom:18px; font-weight:500; }
+
+.tl-row { display:flex; align-items:center; gap:12px; margin-bottom:11px; }
+.tl-label { font-size:10.5px; color:var(--text2); font-weight:600; width:54px; flex-shrink:0; }
+.tl-bar-track { flex:1; background:rgba(107,158,122,0.08); border-radius:100px; height:7px; overflow:hidden; }
+.tl-bar-fill { height:100%; border-radius:100px; transition:width 1.3s cubic-bezier(0.22,1,0.36,1); }
+.tl-val { font-size:10.5px; font-weight:700; color:var(--sage-d); width:38px; text-align:right; flex-shrink:0; }
+
+/* ── WELLNESS ── */
+.wellness-card {
+  background: linear-gradient(150deg, #e8f5ec 0%, #f2f8f4 60%, #eef2f8 100%);
+  border:1px solid rgba(107,158,122,0.14);
+  border-radius:24px; padding:24px 22px 20px;
+  margin-bottom:12px; box-shadow:0 2px 16px rgba(60,100,70,0.08);
+  animation:fadeUp 0.5s 0.24s ease both;
+  text-align:center;
+}
+.wellness-title { font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:var(--text); margin-bottom:3px; }
+.wellness-sub { font-size:10.5px; color:var(--text3); margin-bottom:22px; font-weight:500; }
+
+.wellness-gauge { position:relative; width:160px; height:84px; margin:0 auto 18px; }
+.wellness-gauge canvas { position:absolute; top:0; left:0; }
+
+.wellness-score-wrap {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  text-align:center;
+}
+.wellness-score {
+  font-family:'Playfair Display',serif; font-weight:900; font-size:36px;
+  color:var(--sage-d); line-height:1;
+}
+.wellness-score-lbl { font-size:9px; color:var(--text3); font-weight:700; letter-spacing:1.5px; }
+
+.wellness-grade {
+  display:inline-block; font-size:12px; font-weight:700;
+  color:var(--sage-d); background:rgba(107,158,122,0.12);
+  border:1px solid rgba(107,158,122,0.2);
+  padding:6px 18px; border-radius:100px; letter-spacing:0.3px;
+}
+.wellness-tagline { font-size:11px; color:var(--text2); margin-top:10px; font-style:italic; line-height:1.6; }
+
+/* ── CHART ── */
+.chart-card {
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(107,158,122,0.1);
+  border-radius:24px; padding:22px 20px;
+  margin-bottom:12px; box-shadow:0 2px 16px rgba(60,100,70,0.07);
+  backdrop-filter:blur(20px);
+  animation:fadeUp 0.5s 0.27s ease both;
+}
+.chart-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
+.chart-title { font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:var(--text); }
+.chart-sub { font-size:10.5px; color:var(--text3); margin-top:2px; font-weight:500; }
+.chart-legend { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:9.5px; color:var(--text3); font-weight:500; }
+.legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.chart-wrap { position:relative; height:170px; margin-top:14px; }
+
+/* ── ELECTRICITY ── */
+.elec-card {
+  background: linear-gradient(150deg, #e8eef7 0%, #edeaf6 100%);
+  border:1px solid rgba(128,176,204,0.18);
+  border-radius:24px; padding:24px 22px;
+  margin-bottom:12px; box-shadow:0 2px 16px rgba(60,80,120,0.07);
+  animation:fadeUp 0.5s 0.30s ease both;
+}
+.elec-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.elec-title { font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:#3a5a7a; }
+.elec-badge {
+  font-size:9px; font-weight:700; color:#4a6a8a;
+  background:rgba(128,176,204,0.18); border:1px solid rgba(128,176,204,0.25);
+  padding:4px 10px; border-radius:100px; letter-spacing:0.5px;
+}
+.elec-row { display:flex; align-items:flex-end; gap:8px; margin-bottom:10px; }
+.elec-num { font-family:'Playfair Display',serif; font-weight:900; font-size:54px; color:#2e4a6a; letter-spacing:-2px; line-height:1; }
+.elec-unit { font-size:13px; color:#6a8aaa; padding-bottom:10px; font-weight:500; }
+.elec-desc { font-size:11.5px; color:#5a7a9a; line-height:1.75; }
+.elec-desc strong { color:#2e4a6a; font-weight:700; }
+.elec-trio { display:flex; gap:8px; margin-top:18px; }
+.elec-tile {
+  flex:1; background:rgba(255,255,255,0.65); border-radius:16px;
+  padding:13px 8px; text-align:center;
+  border:1px solid rgba(128,176,204,0.18);
+  backdrop-filter:blur(8px);
+}
+.elec-tile-val { font-family:'Playfair Display',serif; font-weight:700; font-size:15px; color:#2e4a6a; }
+.elec-tile-lbl { font-size:8.5px; color:#7a9ab4; margin-top:4px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+
+/* ── CARBON LAYER HEALTH ── */
+.carbon-card {
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(107,158,122,0.1);
+  border-radius:24px; padding:22px;
+  margin-bottom:12px; box-shadow:0 2px 16px rgba(60,100,70,0.07);
+  backdrop-filter:blur(20px);
+  animation:fadeUp 0.5s 0.33s ease both;
+}
+.carbon-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
+.carbon-title { font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:var(--text); }
+.carbon-sub { font-size:10.5px; color:var(--text3); margin-top:3px; font-weight:500; }
+.carbon-pct { font-family:'Playfair Display',serif; font-weight:900; font-size:36px; color:var(--sand); letter-spacing:-1px; }
+.progress-track { background:rgba(200,149,90,0.1); border-radius:100px; height:8px; overflow:hidden; margin-bottom:10px; }
+.progress-fill {
+  height:100%; border-radius:100px;
+  background:linear-gradient(90deg, var(--sage-l), var(--sand));
+  width:0%; transition:width 1.6s cubic-bezier(0.22,1,0.36,1);
+}
+.carbon-meta { display:flex; justify-content:space-between; font-size:10.5px; color:var(--text3); font-weight:500; }
+.carbon-meta .warn { color:var(--sand); font-weight:700; }
+
+/* ── IMPACT BADGE ── */
+.poster-section {
+  margin-bottom:12px;
+  animation:fadeUp 0.5s 0.36s ease both;
+}
+.poster-label-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:14px;
+}
+.poster-section-title {
+  font-family:'Playfair Display',serif; font-weight:700; font-size:16px; color:var(--text);
+}
+.poster-section-sub { font-size:10.5px; color:var(--text3); font-weight:500; }
+
+.poster-frame {
+  border-radius:24px; overflow:hidden;
+  box-shadow: 0 16px 48px rgba(20,50,30,0.18), 0 0 0 1px rgba(107,158,122,0.12);
+  margin-bottom:12px;
+  position:relative;
+}
+.poster-frame::before {
+  content:'';
+  position:absolute; inset:0; border-radius:24px;
+  background:linear-gradient(to bottom, transparent 70%, rgba(10,20,14,0.15));
+  pointer-events:none; z-index:1;
+}
+
+.poster-actions { display:flex; gap:10px; }
+.poster-btn {
+  flex:1; border:none; border-radius:16px; padding:15px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:13px;
+  cursor:pointer; transition:all 0.25s; letter-spacing:0.3px;
+}
+.poster-btn-primary {
+  background:linear-gradient(135deg, var(--sage-d), var(--sage));
+  color:white; box-shadow:0 6px 20px rgba(61,110,82,0.32);
+}
+.poster-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(61,110,82,0.42); }
+.poster-btn-secondary {
+  background:rgba(255,255,255,0.88); color:var(--sage-d);
+  border:1.5px solid rgba(107,158,122,0.22);
+  box-shadow:0 2px 12px rgba(60,100,70,0.06);
+  backdrop-filter:blur(12px);
+}
+.poster-btn-secondary:hover { border-color:var(--sage); transform:translateY(-1px); }
+
+/* ── FOOTER ── */
+.recalc-btn {
+  width:100%; background:transparent;
+  border:1.5px solid rgba(107,158,122,0.18);
+  border-radius:16px; padding:14px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:12px;
+  color:var(--text3); cursor:pointer; transition:all 0.2s; margin-top:8px;
+  animation:fadeUp 0.5s 0.40s ease both;
+}
+.recalc-btn:hover { border-color:var(--sage); color:var(--sage-d); background:rgba(107,158,122,0.04); }
+
+.divider { height:1px; background:var(--border); margin:16px 0; opacity:0.5; }
+
+.footer-id {
+  text-align:center; margin-top:20px; padding-bottom:8px;
+  font-size:9px; color:var(--text3); letter-spacing:2.5px;
+  font-weight:600; text-transform:uppercase;
+  animation:fadeUp 0.5s 0.44s ease both;
+}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%    { opacity:0.5; transform:scale(0.75); }
+}
+@keyframes breathe {
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.08); }
+}
+@keyframes breathePulse {
+  0%    { transform:scale(1);    box-shadow:0 0 0 0   rgba(107,158,122,0.4); }
+  50%   { transform:scale(1.1); box-shadow:0 0 0 18px rgba(107,158,122,0); }
+  100%  { transform:scale(1);    box-shadow:0 0 0 0   rgba(107,158,122,0); }
+}
+@keyframes spinSlow { to{ transform:rotate(360deg); } }
+@keyframes float {
+  0%,100%{ transform:translateY(0); }
+  50%    { transform:translateY(-8px); }
+}
+@keyframes leafSway {
+  0%,100%{ transform:rotate(-4deg) translateX(0); }
+  50%    { transform:rotate(4deg) translateX(6px); }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ LIVING NATURE BACKGROUND CANVAS ════ -->
+<canvas id="bgCanvas"></canvas>
+
+<div class="wrap">
+
+  <!-- ══════ PLEDGE / COMMITMENT SCREEN ══════ -->
+  <div id="pledgeScreen">
+    <div class="pledge-leaf-top">🍃</div>
+    <div class="pledge-brand">shwasa</div>
+    <div class="pledge-tagline">breathe better · live greener</div>
+
+    <div class="pledge-card">
+      <div class="pledge-oath-title">Your Sustainability Pledge</div>
+      <div class="pledge-oath-sub">Tap each commitment to make your promise</div>
+
+      <div class="pledge-items" id="pledgeItems">
+        <div class="pledge-item" onclick="tickPledge(this, 0)">
+          <div class="pledge-check" id="pc0">🌿</div>
+          <div class="pledge-item-text">
+            <div class="pledge-item-title">I choose clean air over electricity</div>
+            <div class="pledge-item-sub">I commit to passive purification — no power consumed, no carbon wasted</div>
+          </div>
+        </div>
+        <div class="pledge-item" onclick="tickPledge(this, 1)">
+          <div class="pledge-check" id="pc1">♻️</div>
+          <div class="pledge-item-text">
+            <div class="pledge-item-title">I will replace carbon layers responsibly</div>
+            <div class="pledge-item-sub">I'll recycle spent layers and extend the product's life</div>
+          </div>
+        </div>
+        <div class="pledge-item" onclick="tickPledge(this, 2)">
+          <div class="pledge-check" id="pc2">🌱</div>
+          <div class="pledge-item-text">
+            <div class="pledge-item-title">I will inspire one person to breathe better</div>
+            <div class="pledge-item-sub">Every clean breath I take, I'll share the mission with someone new</div>
+          </div>
+        </div>
+        <div class="pledge-item" onclick="tickPledge(this, 3)">
+          <div class="pledge-check" id="pc3">🌍</div>
+          <div class="pledge-item-text">
+            <div class="pledge-item-title">I stand for a low-carbon future</div>
+            <div class="pledge-item-sub">I choose products that heal the planet, not harm it</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pledge-counter">
+        <span id="pledgeCount">0</span> of 4 commitments made
+      </div>
+
+      <button class="pledge-btn" id="pledgeBtn" onclick="showCommitScreen()" disabled>
+        🌿 &nbsp; Tap all 4 to unlock your commitment
+      </button>
+
+      <div style="margin-top:18px">
+        <div class="pledge-avatars">
+          <div class="pledge-avatar" style="background:linear-gradient(135deg,#9ec4aa,#6b9e7a)">🧑</div>
+          <div class="pledge-avatar" style="background:linear-gradient(135deg,#f2c4a0,#e8a090)">👩</div>
+          <div class="pledge-avatar" style="background:linear-gradient(135deg,#a89cc0,#80b0cc)">🧒</div>
+          <div class="pledge-avatar" style="background:linear-gradient(135deg,#c8955a,#e8a090)">👨</div>
+          <div class="pledge-avatar" style="background:linear-gradient(135deg,#6b9e7a,#a89cc0)">🧑</div>
+        </div>
+        <div class="pledge-signatories">
+          <strong>12,847 people</strong> have already pledged to breathe better
+        </div>
+      </div>
+    </div>
+
+    <div class="wind-bar">
+      <div class="wind-label">wind</div>
+      <div class="wind-dots">
+        <div class="wind-dot-w"></div><div class="wind-dot-w"></div>
+        <div class="wind-dot-w"></div><div class="wind-dot-w"></div>
+        <div class="wind-dot-w"></div>
+      </div>
+      <div class="wind-label">shwasa</div>
+    </div>
+  </div>
+
+  <!-- ══════ COMMITMENT BUBBLE SCREEN ══════ -->
+  <div id="commitScreen" style="display:none">
+    <div class="commit-screen-inner">
+
+      <div class="commit-top-text">
+        <div class="commit-step-label">Final Step</div>
+        <div class="commit-title">Seal Your Commitment</div>
+        <div class="commit-sub">Press and hold the orb for 3 seconds<br>to make your pledge official</div>
+      </div>
+
+      <!-- THE HOLD BUBBLE ORB -->
+      <div class="orb-stage">
+        <!-- Outer glow rings -->
+        <div class="orb-ring orb-ring-1"></div>
+        <div class="orb-ring orb-ring-2"></div>
+        <div class="orb-ring orb-ring-3"></div>
+
+        <!-- SVG progress ring -->
+        <svg class="orb-svg" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="orbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6b9e7a"/>
+              <stop offset="100%" stop-color="#9ec4aa"/>
+            </linearGradient>
+          </defs>
+          <circle class="orb-track" cx="100" cy="100" r="88"/>
+          <circle class="orb-progress" id="orbProgress" cx="100" cy="100" r="88"/>
+        </svg>
+
+        <!-- The bubble itself -->
+        <div class="orb-bubble" id="orbBubble"
+          onmousedown="startOrbHold()" onmouseup="cancelOrbHold()" onmouseleave="cancelOrbHold()"
+          ontouchstart="startOrbHold(event)" ontouchend="cancelOrbHold()" ontouchcancel="cancelOrbHold()">
+          <div class="orb-leaf-icon" id="orbLeafIcon">🍃</div>
+          <div class="orb-label" id="orbLabel">Hold Me</div>
+          <div class="orb-timer" id="orbTimer">3</div>
+        </div>
+      </div>
+
+      <div class="orb-hint" id="orbHint">Touch &amp; hold to seal your pledge</div>
+
+      <!-- Commitments summary strip -->
+      <div class="commit-summary">
+        <div class="commit-summary-item">🌿 Clean air</div>
+        <div class="commit-summary-item">♻️ Recycle</div>
+        <div class="commit-summary-item">🌱 Inspire</div>
+        <div class="commit-summary-item">🌍 Low carbon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ COMMITTED CELEBRATION SCREEN ══════ -->
+  <div id="celebScreen" style="display:none">
+    <canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;"></canvas>
+    <div class="celeb-inner" id="celebInner">
+      <canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10;"></canvas>
+      <div class="celeb-leaf">🍃</div>
+      <div class="celeb-badge-ring">
+        <div class="celeb-badge-inner">
+          <div class="celeb-badge-emoji">✦</div>
+        </div>
+      </div>
+      <div class="celeb-title">You're Committed!</div>
+      <div class="celeb-subtitle">to Sustainability</div>
+      <div class="celeb-desc">You've joined <strong>12,848 people</strong> who breathe with purpose and live with intention.</div>
+      <div class="celeb-ribbon">🌿 &nbsp; Sustainability Champion &nbsp; 🌿</div>
+      <button class="celeb-btn" onclick="showMainApp()">Enter My Air ID →</button>
+    </div>
+  </div>
+
+  <!-- HEADER (hidden until pledge done) -->
+  <div id="mainApp" style="display:none">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-logo">🍃</div>
+      <div>
+        <div class="brand-name">shwasa</div>
+        <div class="brand-sub">Air ID · #SW-2847</div>
+      </div>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div> Live</div>
+  </div>
+
+  <!-- AQI WIDGET (setup only) -->
+  <div class="aqi-widget" id="aqiWidget">
+    <div class="aqi-ring-wrap">
+      <div class="aqi-ring">
+        <div class="aqi-inner">
+          <div class="aqi-val">32</div>
+          <div class="aqi-label-sm">AQI</div>
+        </div>
+      </div>
+    </div>
+    <div class="aqi-info">
+      <div class="aqi-title">Room Air Quality</div>
+      <div class="aqi-sub">Your Shwasa curtain is actively<br>filtering your environment</div>
+      <div class="aqi-badge">✓ Good — Breathing Healthy</div>
+    </div>
+  </div>
+
+  <!-- ══════ SETUP ══════ -->
+  <div id="setupScreen">
+    <div class="steps-row">
+      <div class="step-dot active" id="sd1">1</div><div class="step-line" id="sl1"></div>
+      <div class="step-dot" id="sd2">2</div><div class="step-line" id="sl2"></div>
+      <div class="step-dot" id="sd3">3</div><div class="step-line" id="sl3"></div>
+      <div class="step-dot" id="sd4">4</div>
+    </div>
+
+    <div class="card" id="step1">
+      <div class="q-label">Step 1 of 4</div>
+      <div class="q-text">Which room holds your Shwasa curtain?</div>
+      <div class="opts-grid">
+        <div class="opt-btn" onclick="pick(this,'roomType','bedroom')"><div class="opt-emoji">🛏</div><div class="opt-label">Bedroom</div><div class="opt-sub">Personal retreat</div></div>
+        <div class="opt-btn" onclick="pick(this,'roomType','living')"><div class="opt-emoji">🛋</div><div class="opt-label">Living Room</div><div class="opt-sub">Shared space</div></div>
+        <div class="opt-btn" onclick="pick(this,'roomType','kitchen')"><div class="opt-emoji">🍳</div><div class="opt-label">Kitchen</div><div class="opt-sub">High pollution</div></div>
+        <div class="opt-btn" onclick="pick(this,'roomType','office')"><div class="opt-emoji">💼</div><div class="opt-label">Office / Study</div><div class="opt-sub">Focus zone</div></div>
+      </div>
+    </div>
+
+    <div class="card" id="step2" style="display:none">
+      <div class="q-label">Step 2 of 4</div>
+      <div class="q-text">Tell us your room dimensions</div>
+      <div class="dims-grid">
+        <div class="dim-wrap"><div class="dim-label">Length</div><div class="dim-row"><button class="dim-btn" onclick="dim('length',-1)">−</button><input class="dim-num" id="dL" value="12" readonly><button class="dim-btn" onclick="dim('length',1)">+</button></div></div>
+        <div class="dim-wrap"><div class="dim-label">Width</div><div class="dim-row"><button class="dim-btn" onclick="dim('width',-1)">−</button><input class="dim-num" id="dW" value="10" readonly><button class="dim-btn" onclick="dim('width',1)">+</button></div></div>
+        <div class="dim-wrap"><div class="dim-label">Height</div><div class="dim-row"><button class="dim-btn" onclick="dim('height',-1)">−</button><input class="dim-num" id="dH" value="9" readonly><button class="dim-btn" onclick="dim('height',1)">+</button></div></div>
+      </div>
+      <div class="dims-unit">All measurements in feet</div>
+      <div class="vol-pill">Room: <strong id="vCuft">1,080 cu ft</strong> · <strong id="vM3">30.6 m³</strong></div>
+    </div>
+
+    <div class="card" id="step3" style="display:none">
+      <div class="q-label">Step 3 of 4</div>
+      <div class="q-text">How many hours a day is the curtain in use?</div>
+      <div class="slider-wrap">
+        <div class="slider-big"><span id="hVal">8</span></div>
+        <div class="slider-unit-text">hours per day</div>
+        <input type="range" id="hSlider" min="1" max="24" value="8" oninput="document.getElementById('hVal').textContent=this.value">
+        <div class="slider-labels"><span>1 hr</span><span>12 hrs</span><span>24 hrs</span></div>
+      </div>
+    </div>
+
+    <div class="card" id="step4" style="display:none">
+      <div class="q-label">Step 4 of 4</div>
+      <div class="q-text">How many days has this carbon layer been installed?</div>
+      <div class="slider-wrap">
+        <div class="slider-big"><span id="dVal">14</span></div>
+        <div class="slider-unit-text">days installed</div>
+        <input type="range" id="dSlider" min="1" max="60" value="14" oninput="document.getElementById('dVal').textContent=this.value">
+        <div class="slider-labels"><span>1 day</span><span>30 days</span><span>60 days</span></div>
+      </div>
+    </div>
+
+    <button class="next-btn" id="nextBtn" onclick="next()">Continue →</button>
+  </div>
+
+  <!-- ══════ LOADING ══════ -->
+  <div id="loadingScreen">
+    <div class="breath-ring">🍃</div>
+    <div class="loading-title">Analysing your air…</div>
+    <div class="loading-sub">Crunching your room data</div>
+    <ul class="load-steps">
+      <li id="ls1">Measuring room volume</li>
+      <li id="ls2">Calculating purification cycles</li>
+      <li id="ls3">Estimating particulates absorbed</li>
+      <li id="ls4">Computing electricity savings</li>
+      <li id="ls5">Building wellness score</li>
+      <li id="ls6">Generating impact poster</li>
+    </ul>
+  </div>
+
+  <!-- ══════ RESULTS ══════ -->
+  <div id="resultsScreen">
+
+    <!-- HERO — dark botanical card -->
+    <div class="breath-hero">
+      <div class="hero-glow-1"></div>
+      <div class="hero-glow-2"></div>
+      <div class="hero-tag">🫁 Lung Relief Score</div>
+      <div class="hero-num" id="rMg">0</div>
+      <div class="hero-unit">mg of particulates absorbed</div>
+      <div class="hero-desc" id="rDesc">—</div>
+      <div class="cig-highlight">
+        <div class="cig-hl-left">
+          <div class="cig-hl-num" id="cigNum">—</div>
+          <div class="cig-hl-icon">🚬</div>
+        </div>
+        <div class="cig-hl-right">
+          <div class="cig-hl-title">Cigarettes Avoided</div>
+          <div class="cig-hl-sub">worth of particles your lungs never breathed in</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💨</div>
+        <div class="stat-label">Air Purified</div>
+        <div class="stat-val" id="rAirL">—</div>
+        <div class="stat-sub">litres total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚬</div>
+        <div class="stat-label">Cigarettes Equiv.</div>
+        <div class="stat-val" id="rCigsGrid">—</div>
+        <div class="stat-sub">particles blocked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🌿</div>
+        <div class="stat-label">Tree Equiv.</div>
+        <div class="stat-val" id="rTrees">—</div>
+        <div class="stat-sub">trees planted equiv.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">☁️</div>
+        <div class="stat-label">PM2.5 Reduced</div>
+        <div class="stat-val" id="rPM">—</div>
+        <div class="stat-sub">µg/m³ improvement</div>
+      </div>
+    </div>
+
+    <!-- DAILY BREAKDOWN -->
+    <div class="timeline-card">
+      <div class="timeline-title">Daily Absorption Breakdown</div>
+      <div class="timeline-sub">Particulates captured per day by category</div>
+      <div class="tl-row">
+        <div class="tl-label">PM2.5</div>
+        <div class="tl-bar-track"><div class="tl-bar-fill" id="tlPM25" style="background:linear-gradient(90deg,#6b9e7a,#9ec4aa);width:0%"></div></div>
+        <div class="tl-val" id="tlPM25v">—</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-label">VOCs</div>
+        <div class="tl-bar-track"><div class="tl-bar-fill" id="tlVOC" style="background:linear-gradient(90deg,#a89cc0,#c4bade);width:0%"></div></div>
+        <div class="tl-val" id="tlVOCv">—</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-label">Odour</div>
+        <div class="tl-bar-track"><div class="tl-bar-fill" id="tlOdour" style="background:linear-gradient(90deg,#e8a090,#f2c4a0);width:0%"></div></div>
+        <div class="tl-val" id="tlOdourv">—</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-label">Smoke</div>
+        <div class="tl-bar-track"><div class="tl-bar-fill" id="tlSmoke" style="background:linear-gradient(90deg,#80b0cc,#a8cce0);width:0%"></div></div>
+        <div class="tl-val" id="tlSmokev">—</div>
+      </div>
+    </div>
+
+    <!-- WELLNESS SCORE -->
+    <div class="wellness-card">
+      <div class="wellness-title">🧘 Wellness Score</div>
+      <div class="wellness-sub">Your room's air health index after Shwasa</div>
+      <div class="wellness-gauge">
+        <canvas id="gaugeCanvas" width="160" height="84"></canvas>
+        <div class="wellness-score-wrap">
+          <div class="wellness-score" id="wellnessScore">0</div>
+          <div class="wellness-score-lbl">/ 100</div>
+        </div>
+      </div>
+      <div class="wellness-grade" id="wellnessGrade">—</div>
+      <div class="wellness-tagline" id="wellnessTagline">—</div>
+    </div>
+
+    <!-- ABSORPTION CHART -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Absorption Forecast</div>
+          <div class="chart-sub">Cumulative particulates over 60 days</div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#6b9e7a"></div>Actual</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e8a090;opacity:0.7"></div>Forecast</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="airChart"></canvas></div>
+    </div>
+
+    <!-- ELECTRICITY SAVED -->
+    <div class="elec-card">
+      <div class="elec-header">
+        <div class="elec-title">⚡ Electricity Saved</div>
+        <div class="elec-badge">vs. Electric Purifier</div>
+      </div>
+      <div class="elec-row">
+        <div class="elec-num" id="rKwh">0</div>
+        <div class="elec-unit">kWh saved</div>
+      </div>
+      <div class="elec-desc" id="rElecDesc">—</div>
+      <div class="elec-trio">
+        <div class="elec-tile">
+          <div class="elec-tile-val" id="rMoney">₹0</div>
+          <div class="elec-tile-lbl">Money Saved</div>
+        </div>
+        <div class="elec-tile">
+          <div class="elec-tile-val" id="rCO2">0 kg</div>
+          <div class="elec-tile-lbl">CO₂ Avoided</div>
+        </div>
+        <div class="elec-tile">
+          <div class="elec-tile-val" id="rPhones">0×</div>
+          <div class="elec-tile-lbl">Phone Charges</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARBON LAYER HEALTH -->
+    <div class="carbon-card">
+      <div class="carbon-top">
+        <div>
+          <div class="carbon-title">Carbon Layer Health</div>
+          <div class="carbon-sub" id="rInstalled">—</div>
+        </div>
+        <div class="carbon-pct" id="rPct">—</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="rBar"></div></div>
+      <div class="carbon-meta">
+        <span id="rDaysLeft">—</span>
+        <span class="warn" id="rWarn">—</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- IMPACT BADGE -->
+    <div class="poster-section">
+      <div class="poster-label-row">
+        <div class="poster-section-title">✦ Your Impact Badge</div>
+        <div class="poster-section-sub">Download &amp; share 🌿</div>
+      </div>
+      <div class="poster-frame">
+        <canvas id="impactPoster" width="800" height="1000" style="width:100%;display:block;"></canvas>
+      </div>
+      <div class="poster-actions">
+        <button class="poster-btn poster-btn-primary" onclick="downloadPoster()">⬇ &nbsp;Download</button>
+        <button class="poster-btn poster-btn-secondary" id="shareBtn" onclick="handleShare()">⬆ &nbsp;Share</button>
+      </div>
+    </div>
+
+    <button class="recalc-btn" onclick="restart()">↺ &nbsp;Recalculate with new data</button>
+    <div class="footer-id">SHWASA · SW-2847 · ACTIVATED CHARCOAL SERIES</div>
+
+  </div><!-- /resultsScreen -->
+
+  </div><!-- /mainApp -->
+</div><!-- /wrap -->
+
+<!-- ══ COMMITTED OVERLAY ══ -->
+<div class="committed-overlay" id="committedOverlay">
+  <div class="committed-burst" id="committedBurst">
+    <canvas class="committed-particles" id="particleCanvas" width="340" height="340" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;"></canvas>
+    <span class="committed-big-leaf">🍃</span>
+    <div class="committed-title">You're Committed!</div>
+    <div class="committed-sub">You've joined a movement for cleaner air<br>and a greener planet 🌍</div>
+    <div class="committed-ribbon">✦ &nbsp; Sustainability Champion &nbsp; ✦</div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   WIND-PHYSICS NATURE BACKGROUND
+   Gusty wind · leaves blown sideways ·
+   swaying grass blades · pollen motes ·
+   wind streak lines · bokeh light
+═══════════════════════════════════════════ */
+(function () {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── Wind state – oscillates between calm and gusts ── */
+  let wind = 1.0, windTarget = 1.0, gustT = 0;
+
+  /* ── Soft bokeh light pools ── */
+  const bokeh = Array.from({ length: 12 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    r: 60 + Math.random() * 140,
+    op: 0.02 + Math.random() * 0.035,
+    ph: Math.random() * Math.PI * 2,
+    hue: 118 + Math.random() * 32,
+  }));
+
+  /* ── Leaves blown horizontally by wind ── */
+  function mkLeaf() {
+    return {
+      x: -20, y: 60 + Math.random() * (H * 0.78),
+      sz: 6 + Math.random() * 14,
+      vx: 1.2 + Math.random() * 1.8,   // horizontal wind speed
+      vy: (Math.random() - 0.5) * 0.7, // small vertical drift
+      rot: Math.random() * Math.PI * 2,
+      rs: (Math.random() - 0.5) * 0.07,// rotation speed
+      wb: Math.random() * Math.PI * 2, // wobble phase
+      wbs: 0.03 + Math.random() * 0.05,// wobble speed
+      op: 0.10 + Math.random() * 0.18,
+      hue: 114 + Math.random() * 28,
+    };
+  }
+  const leaves = Array.from({ length: 20 }, () => { const l = mkLeaf(); l.x = Math.random() * W; return l; });
+
+  /* ── Pollen / dust motes ── */
+  const pollen = Array.from({ length: 32 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    r: 1.5 + Math.random() * 2.5,
+    vx: 0.3 + Math.random() * 0.7,
+    vy: (Math.random() - 0.5) * 0.25,
+    op: 0.05 + Math.random() * 0.09,
+    ph: Math.random() * Math.PI * 2,
+  }));
+
+  /* ── Wind streaks – horizontal lines that gust across ── */
+  const streaks = Array.from({ length: 16 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    len: 25 + Math.random() * 90,
+    spd: 4 + Math.random() * 6,
+    life: 0, maxLife: 30 + Math.random() * 50, op: 0,
+  }));
+
+  /* ── Grass blades at the bottom edge ── */
+  const grass = Array.from({ length: 40 }, () => ({
+    x: Math.random() * W,
+    h: 16 + Math.random() * 30,
+    w: 1.5 + Math.random() * 2,
+    ph: Math.random() * Math.PI * 2,
+    spd: 0.018 + Math.random() * 0.025,
+    hue: 118 + Math.random() * 22,
+  }));
+
+  /* ── Tree branches silhouette ── */
+  function drawBranch(x, y, len, angle, depth) {
+    if (depth === 0 || len < 4) return;
+    const ex = x + Math.cos(angle) * len;
+    const ey = y + Math.sin(angle) * len;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey);
+    ctx.lineWidth = depth * 0.7; ctx.stroke();
+    drawBranch(ex, ey, len * 0.68, angle - 0.35 - Math.sin(t * 0.3) * 0.06 * wind, depth - 1);
+    drawBranch(ex, ey, len * 0.65, angle + 0.40 + Math.sin(t * 0.4 + 1) * 0.05 * wind, depth - 1);
+  }
+
+  /* ── Draw one leaf shape ── */
+  function drawLeaf(l) {
+    ctx.save();
+    ctx.translate(l.x, l.y);
+    ctx.rotate(l.rot);
+    ctx.globalAlpha = l.op;
+    ctx.fillStyle = `hsl(${l.hue},44%,48%)`;
+    ctx.beginPath();
+    ctx.moveTo(0, -l.sz);
+    ctx.bezierCurveTo( l.sz * .78, -l.sz * .5,  l.sz * .78,  l.sz * .32, 0,  l.sz * .52);
+    ctx.bezierCurveTo(-l.sz * .78,  l.sz * .32, -l.sz * .78, -l.sz * .5,  0, -l.sz);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = `hsl(${l.hue},55%,34%)`; ctx.lineWidth = 0.8;
+    ctx.globalAlpha = l.op * 0.5;
+    ctx.beginPath(); ctx.moveTo(0, -l.sz); ctx.lineTo(0, l.sz * .52); ctx.stroke();
+    ctx.restore();
+  }
+
+  let t = 0;
+
+  function draw() {
+    t += 0.007;
+    gustT += 0.011;
+
+    /* Gust cycle: calm → rising gust → calm */
+    const gustWave = Math.sin(gustT * 0.7) * 0.5 + Math.sin(gustT * 1.3) * 0.3;
+    windTarget = 0.8 + Math.max(0, gustWave) * 2.8;
+    wind += (windTarget - wind) * 0.025;
+
+    /* ── Background ── */
+    const bg = ctx.createLinearGradient(0, 0, W * .6, H);
+    bg.addColorStop(0,    '#dff0e5');
+    bg.addColorStop(0.38, '#eaf5ee');
+    bg.addColorStop(0.72, '#f3f0ea');
+    bg.addColorStop(1,    '#eceaf4');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    /* Sky atmospheric haze */
+    const skyG = ctx.createLinearGradient(0, 0, 0, H * 0.5);
+    skyG.addColorStop(0, 'rgba(190,220,205,0.18)');
+    skyG.addColorStop(1, 'transparent');
+    ctx.fillStyle = skyG; ctx.fillRect(0, 0, W, H * 0.5);
+
+    /* ── Bokeh ── */
+    bokeh.forEach(b => {
+      const osc = b.op * (0.65 + 0.35 * Math.sin(t * 0.85 + b.ph));
+      const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+      g.addColorStop(0, `hsla(${b.hue},40%,68%,${osc})`); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+    });
+
+    /* ── Swaying tree silhouettes (far left & right edges) ── */
+    ctx.strokeStyle = 'rgba(90,130,100,0.07)'; ctx.lineCap = 'round';
+    drawBranch(-10, H * 0.65, 80, -Math.PI / 2 + 0.1, 6);
+    drawBranch(W + 10, H * 0.6, 70, -Math.PI / 2 - 0.1, 5);
+
+    /* ── Wind streaks ── */
+    streaks.forEach(s => {
+      s.x += s.spd * wind;
+      s.life++;
+      if (s.x > W + s.len || s.life > s.maxLife) {
+        s.x = -s.len; s.y = 30 + Math.random() * H * 0.85;
+        s.len = 25 + Math.random() * 85; s.spd = 4 + Math.random() * 6;
+        s.life = 0; s.maxLife = 28 + Math.random() * 48;
+      }
+      const fade = Math.min(s.life / 8, 1) * Math.min((s.maxLife - s.life) / 10, 1);
+      ctx.globalAlpha = 0.055 * fade * Math.min(wind, 2);
+      ctx.strokeStyle = '#b0d4be'; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x + s.len, s.y); ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    /* ── Leaves (wind-blown horizontally) ── */
+    leaves.forEach(l => {
+      l.wb += l.wbs;
+      l.x  += l.vx * wind;
+      l.y  += l.vy + Math.sin(l.wb) * 0.55;  // flutter up/down
+      l.rot += l.rs * (1 + wind * 0.4);
+      if (l.x > W + 30) Object.assign(l, mkLeaf());
+      drawLeaf(l);
+    });
+
+    /* ── Pollen motes ── */
+    ctx.globalAlpha = 1;
+    pollen.forEach(p => {
+      p.x += p.vx * wind;
+      p.y += p.vy + Math.sin(t * 1.1 + p.ph) * 0.3;
+      if (p.x > W + 6) { p.x = -6; p.y = Math.random() * H; }
+      ctx.globalAlpha = p.op * (0.5 + 0.5 * Math.sin(t * 1.4 + p.ph));
+      ctx.fillStyle = 'rgba(180,210,160,0.9)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    /* ── Grass blades (bottom strip) ── */
+    grass.forEach(g => {
+      const sway = Math.sin(t * g.spd * 60 + g.ph) * (0.28 + wind * 0.22);
+      const baseY = H - 4;
+      ctx.strokeStyle = `hsl(${g.hue},48%,42%)`;
+      ctx.lineWidth = g.w; ctx.globalAlpha = 0.18;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(g.x, baseY);
+      // quadratic curve: tip blown by wind
+      ctx.quadraticCurveTo(
+        g.x + sway * g.h * 0.6,
+        baseY - g.h * 0.55,
+        g.x + sway * g.h,
+        baseY - g.h
+      );
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    /* ── Mist horizon bands ── */
+    for (let i = 0; i < 3; i++) {
+      const my = H * 0.22 * i + H * 0.08 + Math.sin(t * 0.4 + i) * 18;
+      const mg = ctx.createLinearGradient(0, my - 28, 0, my + 28);
+      mg.addColorStop(0, 'transparent');
+      mg.addColorStop(0.5, 'rgba(195,225,205,0.04)');
+      mg.addColorStop(1, 'transparent');
+      ctx.fillStyle = mg; ctx.fillRect(0, my - 28, W, 56);
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════
+   PLEDGE → COMMIT ORB → CELEBRATION → APP
+═══════════════════════════════════════════ */
+const pledged = [false, false, false, false];
+
+function tickPledge(el, idx) {
+  if (pledged[idx]) return;
+  pledged[idx] = true;
+  el.classList.add('ticked');
+  document.getElementById('pc' + idx).textContent = '✓';
+  const count = pledged.filter(Boolean).length;
+  document.getElementById('pledgeCount').textContent = count;
+  if (count === 4) {
+    const btn = document.getElementById('pledgeBtn');
+    btn.removeAttribute('disabled');
+    btn.classList.add('ready');
+    btn.textContent = '🌿  I\'ve Pledged — Seal My Commitment';
+  }
+}
+
+function showCommitScreen() {
+  if (!pledged.every(Boolean)) return;
+  const pledge = document.getElementById('pledgeScreen');
+  pledge.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  pledge.style.opacity = '0'; pledge.style.transform = 'scale(0.97)';
+  setTimeout(() => {
+    pledge.style.display = 'none';
+    const cs = document.getElementById('commitScreen');
+    cs.style.display = 'flex';
+    cs.style.opacity = '0'; cs.style.transition = 'opacity 0.6s ease';
+    requestAnimationFrame(() => { cs.style.opacity = '1'; });
+  }, 600);
+}
+
+/* ── Hold-orb logic ── */
+const ORB_CIRC = 2 * Math.PI * 88; // stroke-dasharray for r=88
+let orbRAF = null, orbStart = null, orbCountdown = null;
+const ORB_DURATION = 3000;
+
+function startOrbHold(e) {
+  if (e) e.preventDefault();
+  orbStart = Date.now();
+  const bubble = document.getElementById('orbBubble');
+  bubble.classList.add('pressing');
+
+  // Countdown seconds
+  let secs = 3;
+  document.getElementById('orbTimer').textContent = secs;
+  orbCountdown = setInterval(() => {
+    secs = Math.max(0, Math.ceil((ORB_DURATION - (Date.now() - orbStart)) / 1000));
+    document.getElementById('orbTimer').textContent = secs;
+  }, 100);
+
+  function animOrb() {
+    const pct = Math.min((Date.now() - orbStart) / ORB_DURATION, 1);
+    const offset = ORB_CIRC * (1 - pct);
+    document.getElementById('orbProgress').style.strokeDashoffset = offset;
+    if (pct < 1) { orbRAF = requestAnimationFrame(animOrb); }
+    else { onOrbComplete(); }
+  }
+  orbRAF = requestAnimationFrame(animOrb);
+}
+
+function cancelOrbHold() {
+  if (!orbStart) return;
+  cancelAnimationFrame(orbRAF); orbRAF = null;
+  clearInterval(orbCountdown); orbCountdown = null;
+  orbStart = null;
+  document.getElementById('orbProgress').style.strokeDashoffset = ORB_CIRC;
+  document.getElementById('orbBubble').classList.remove('pressing');
+  document.getElementById('orbTimer').textContent = '3';
+  document.getElementById('orbHint').textContent = 'Keep holding — try again';
+  setTimeout(() => {
+    document.getElementById('orbHint').textContent = 'Touch & hold to seal your pledge';
+  }, 1800);
+}
+
+function onOrbComplete() {
+  clearInterval(orbCountdown);
+  document.getElementById('orbBubble').classList.remove('pressing');
+
+  // Transition to celebration
+  const cs = document.getElementById('commitScreen');
+  cs.style.transition = 'opacity 0.5s ease';
+  cs.style.opacity = '0';
+  setTimeout(() => {
+    cs.style.display = 'none';
+    const celeb = document.getElementById('celebScreen');
+    celeb.style.display = 'flex';
+    celeb.style.opacity = '0'; celeb.style.transition = 'opacity 0.5s ease';
+    requestAnimationFrame(() => { celeb.style.opacity = '1'; });
+    launchConfetti();
+  }, 500);
+}
+
+function showMainApp() {
+  const celeb = document.getElementById('celebScreen');
+  celeb.style.transition = 'opacity 0.6s ease';
+  celeb.style.opacity = '0';
+  setTimeout(() => {
+    celeb.style.display = 'none';
+    const app = document.getElementById('mainApp');
+    app.style.display = 'block';
+    app.style.opacity = '0'; app.style.transition = 'opacity 0.7s ease';
+    requestAnimationFrame(() => { app.style.opacity = '1'; });
+  }, 600);
+}
+
+/* ── Confetti burst ── */
+function launchConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  const pieces = Array.from({ length: 80 }, () => ({
+    x: window.innerWidth / 2 + (Math.random() - 0.5) * 80,
+    y: window.innerHeight * 0.4,
+    vx: (Math.random() - 0.5) * 14,
+    vy: -8 - Math.random() * 10,
+    rot: Math.random() * Math.PI * 2,
+    rs: (Math.random() - 0.5) * 0.2,
+    w: 6 + Math.random() * 8, h: 3 + Math.random() * 4,
+    hue: 90 + Math.random() * 80,
+    sat: 45 + Math.random() * 30,
+    life: 1, decay: 0.008 + Math.random() * 0.008,
+    shape: Math.random() > 0.6 ? 'leaf' : 'rect',
+  }));
+
+  function drawConf() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      if (p.life <= 0) return;
+      alive = true;
+      p.x += p.vx; p.y += p.vy; p.vy += 0.28;
+      p.vx *= 0.99; p.rot += p.rs; p.life -= p.decay;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = `hsl(${p.hue},${p.sat}%,52%)`;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      if (p.shape === 'leaf') {
+        ctx.beginPath();
+        ctx.moveTo(0,-p.h*2);
+        ctx.bezierCurveTo(p.w,-p.h,p.w,p.h,0,p.h*2);
+        ctx.bezierCurveTo(-p.w,p.h,-p.w,-p.h,0,-p.h*2);
+        ctx.closePath(); ctx.fill();
+      } else {
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      }
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+    if (alive) requestAnimationFrame(drawConf);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  drawConf();
+}
+
+/* ═══════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════ */
+const S = { roomType:null, length:12, width:10, height:9, hours:8, days:14 };
+let step=1, chartInstance=null, C={};
+
+/* ─ Nav ─ */
+function next() {
+  if (step===1){ if(!S.roomType){shakeBtn();return;} goStep(2); }
+  else if (step===2){ goStep(3); }
+  else if (step===3){ S.hours=+document.getElementById('hSlider').value; goStep(4); }
+  else if (step===4){ S.days=+document.getElementById('dSlider').value; startCalc(); }
+}
+
+function goStep(n) {
+  document.getElementById('step'+step).style.display='none';
+  step=n;
+  const el=document.getElementById('step'+n);
+  el.style.display=''; el.style.animation='none';
+  requestAnimationFrame(()=>{ el.style.animation='fadeUp 0.4s ease both'; });
+  refreshDots();
+  document.getElementById('nextBtn').textContent = n===4 ? '✨ Calculate My Air Data' : 'Continue →';
+}
+
+function refreshDots() {
+  for(let i=1;i<=4;i++){
+    const d=document.getElementById('sd'+i);
+    d.className='step-dot'+(i<step?' done':i===step?' active':'');
+  }
+  for(let i=1;i<=3;i++)
+    document.getElementById('sl'+i).className='step-line'+(i<step?' done':'');
+}
+
+function shakeBtn() {
+  const b=document.getElementById('nextBtn');
+  b.classList.add('shake'); setTimeout(()=>b.classList.remove('shake'),600);
+}
+
+function pick(el,key,val) {
+  el.closest('.opts-grid').querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); S[key]=val;
+}
+
+const dimMin={length:6,width:6,height:7}, dimMax={length:80,width:80,height:25};
+const dimIds={length:'dL',width:'dW',height:'dH'};
+
+function dim(key,d) {
+  const el=document.getElementById(dimIds[key]);
+  let v=parseInt(el.value)+d;
+  v=Math.max(dimMin[key],Math.min(dimMax[key],v));
+  el.value=v; S[key]=v; updateVol();
+}
+
+function updateVol() {
+  const cf=S.length*S.width*S.height;
+  const m3=(cf*0.0283168).toFixed(1);
+  document.getElementById('vCuft').textContent=cf.toLocaleString()+' cu ft';
+  document.getElementById('vM3').textContent=m3+' m³';
+}
+updateVol();
+
+/* ─ Calc flow ─ */
+function startCalc() {
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('aqiWidget').style.display='none';
+  document.getElementById('loadingScreen').style.display='block';
+  [1,2,3,4,5,6].forEach((s,i)=>setTimeout(()=>document.getElementById('ls'+s).classList.add('done'),400+i*440));
+  setTimeout(()=>{ compute(); document.getElementById('loadingScreen').style.display='none'; document.getElementById('resultsScreen').style.display='block'; populate(); }, 3200);
+}
+
+/* ─ Core maths ─ */
+function compute() {
+  const {length,width,height,hours,days,roomType}=S;
+  const volM3=length*width*height*0.0283168;
+  const volL=volM3*1000;
+  const mult={bedroom:1.0,living:1.1,kitchen:1.45,office:1.05}[roomType]||1;
+  const totalH=hours*days;
+  const cycles=0.5*totalH;
+  const airM3=cycles*volM3;
+  const totMg=Math.round(airM3*0.7*mult);
+  const cigEq=Math.max(1,Math.round(totMg/18));
+  const trees=(totMg/360).toFixed(1);
+  const pm25=Math.min(35,Math.round(12*mult*Math.min(cycles/4,1)));
+  const usedPct=Math.min(Math.round((totalH/480)*100),99);
+  const daysLeft=Math.max(0,Math.round((480-totalH)/hours));
+  const kwh=parseFloat(((50*totalH)/1000).toFixed(1));
+  const money=Math.round(kwh*6);
+  const co2=parseFloat((kwh*0.82).toFixed(1));
+  const phones=Math.round(kwh/0.012);
+  const mgPerDay=Math.round(totMg/days);
+  // Particulate breakdown (rough proportions by room type)
+  const pm25Share={bedroom:0.35,living:0.32,kitchen:0.25,office:0.30}[roomType]||0.32;
+  const vocShare={bedroom:0.28,living:0.30,kitchen:0.22,office:0.35}[roomType]||0.28;
+  const odourShare={bedroom:0.18,living:0.20,kitchen:0.30,office:0.15}[roomType]||0.20;
+  const smokeShare=1-pm25Share-vocShare-odourShare;
+  const wellnessScore=Math.min(98,Math.round(55+usedPct*0.2+cycles*0.08+(1/mult)*15));
+  C={ volM3:volM3.toFixed(1), airL:Math.round(airL=volL*cycles/1000*1000),
+      cycles:cycles.toFixed(1), totMg, cigEq, trees, pm25, usedPct, daysLeft,
+      kwh, money, co2, phones, hours, days, mgPerDay,
+      roomLabel:{bedroom:'Bedroom',living:'Living Room',kitchen:'Kitchen',office:'Office'}[roomType],
+      pm25Mg:Math.round(totMg*pm25Share), vocMg:Math.round(totMg*vocShare),
+      odourMg:Math.round(totMg*odourShare), smokeMg:Math.round(totMg*smokeShare),
+      wellnessScore };
+}
+let airL=0;
+
+/* ─ Populate ─ */
+function populate() {
+  const c=C;
+  // Hero
+  countUp('rMg',c.totMg,1600);
+  document.getElementById('rDesc').innerHTML=
+    `Absorbed <strong>${c.totMg.toLocaleString()}mg of particulates</strong> in your <strong>${c.roomLabel}</strong> (${c.volM3} m³) — <strong>${c.days} days</strong> at <strong>${c.hours} hrs/day</strong>.`;
+  // Cig
+  countUp('cigNum',c.cigEq,1300);
+  document.getElementById('rCigsGrid').textContent=c.cigEq;
+  // Stats
+  document.getElementById('rAirL').textContent=c.airL.toLocaleString();
+  document.getElementById('rTrees').textContent=c.trees;
+  document.getElementById('rPM').textContent=c.pm25+' µg/m³';
+  // Chart
+  buildChart(c);
+  // Timeline bars
+  const maxMg=Math.max(c.pm25Mg,c.vocMg,c.odourMg,c.smokeMg);
+  setTimeout(()=>{
+    animBar('tlPM25', c.pm25Mg, maxMg); document.getElementById('tlPM25v').textContent=c.pm25Mg+'mg';
+    animBar('tlVOC',  c.vocMg,  maxMg); document.getElementById('tlVOCv').textContent=c.vocMg+'mg';
+    animBar('tlOdour',c.odourMg,maxMg); document.getElementById('tlOdourv').textContent=c.odourMg+'mg';
+    animBar('tlSmoke',c.smokeMg,maxMg); document.getElementById('tlSmokev').textContent=c.smokeMg+'mg';
+  },400);
+  // Wellness gauge
+  drawGauge(c.wellnessScore);
+  countUp('wellnessScore',c.wellnessScore,1400);
+  const grades=[
+    {min:90,g:'Excellent 🌟',t:'Your air is exceptionally clean. Keep breathing.'},
+    {min:75,g:'Very Good 🍃',t:'Great air quality. Shwasa is doing its job.'},
+    {min:55,g:'Good 🌱',     t:'Comfortable air. A few more days will be even better.'},
+    {min:0, g:'Fair 🌤',     t:'Progress is real. Your layer is actively working.'},
+  ];
+  const grade=grades.find(g=>c.wellnessScore>=g.min);
+  document.getElementById('wellnessGrade').textContent=grade.g;
+  document.getElementById('wellnessTagline').textContent=grade.t;
+  // Electricity
+  countUp('rKwh',c.kwh,1400,1);
+  document.getElementById('rElecDesc').innerHTML=
+    `A standard <strong>50W electric purifier</strong> would have consumed <strong>${c.kwh} kWh</strong>. Your Shwasa used zero electricity — completely passive.`;
+  document.getElementById('rMoney').textContent='₹'+c.money;
+  document.getElementById('rCO2').textContent=c.co2+' kg';
+  document.getElementById('rPhones').textContent=c.phones+'×';
+  // Carbon
+  document.getElementById('rInstalled').textContent=`Installed ${c.days} day${c.days>1?'s':''} ago · ${c.hours} hrs/day`;
+  document.getElementById('rPct').textContent=c.usedPct+'%';
+  document.getElementById('rDaysLeft').textContent=c.daysLeft>0?`~${c.daysLeft} days remaining`:'Replace now';
+  document.getElementById('rWarn').textContent=
+    c.daysLeft===0?'⚠ Replace immediately':c.daysLeft<=7?'⚠ Replace very soon':c.daysLeft<=14?'⚠ Replace in ~2 weeks':'✓ Layer healthy';
+  setTimeout(()=>{ document.getElementById('rBar').style.width=c.usedPct+'%'; },300);
+  // Poster
+  setTimeout(()=>drawPoster(c),200);
+}
+
+function animBar(id,val,max) {
+  const el=document.getElementById(id);
+  el.style.width=Math.round((val/max)*88)+'%';
+}
+
+/* ─ Chart ─ */
+function buildChart(c) {
+  if(chartInstance){ chartInstance.destroy(); chartInstance=null; }
+  const labels=[],actual=[],forecast=[];
+  for(let d=1;d<=60;d++){
+    labels.push('Day '+d);
+    if(d<=c.days){
+      actual.push(parseFloat((c.mgPerDay*d).toFixed(1)));
+      forecast.push(null);
+    } else {
+      actual.push(null);
+      const fac=Math.max(0.4,1-(d/300));
+      forecast.push(parseFloat((c.mgPerDay*c.days+c.mgPerDay*fac*(d-c.days)).toFixed(1)));
+    }
+  }
+  if(c.days<60) forecast[c.days-1]=actual[c.days-1];
+  const ctx=document.getElementById('airChart').getContext('2d');
+  const gA=ctx.createLinearGradient(0,0,0,180);
+  gA.addColorStop(0,'rgba(107,158,122,0.32)'); gA.addColorStop(1,'rgba(107,158,122,0.02)');
+  const gF=ctx.createLinearGradient(0,0,0,180);
+  gF.addColorStop(0,'rgba(232,160,144,0.22)'); gF.addColorStop(1,'rgba(232,160,144,0.02)');
+  chartInstance=new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Actual (mg)', data:actual, borderColor:'#6b9e7a', backgroundColor:gA, borderWidth:2.5,
+        pointRadius:ctx2=>ctx2.dataIndex===c.days-1?6:0, pointBackgroundColor:'#6b9e7a', tension:0.4, fill:true, spanGaps:false },
+      { label:'Forecast (mg)', data:forecast, borderColor:'#e8a090', backgroundColor:gF, borderWidth:2,
+        borderDash:[5,4], pointRadius:0, tension:0.4, fill:true, spanGaps:false }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(255,255,255,0.95)', titleColor:'#243028', bodyColor:'#5a7060',
+          borderColor:'rgba(107,158,122,0.2)', borderWidth:1, cornerRadius:12, padding:12,
+          titleFont:{family:"'Plus Jakarta Sans'",weight:'700',size:12},
+          bodyFont:{family:"'Plus Jakarta Sans'",size:11},
+          callbacks:{
+            title:i=>i[0].label,
+            label:i=>{ if(i.raw===null)return null; return (i.datasetIndex===0?'● Actual':'○ Forecast')+': '+i.raw+' mg'; }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, border:{display:false},
+            ticks:{ maxTicksLimit:7, color:'#96b09a', font:{family:"'Plus Jakarta Sans'",size:10,weight:'500'},
+                    callback:(v,i)=>{ const d=i+1; return (d===1||d===c.days||d===30||d===60)?'D'+d:''; } } },
+        y:{ grid:{color:'rgba(107,158,122,0.07)'}, border:{display:false},
+            ticks:{ color:'#96b09a', font:{family:"'Plus Jakarta Sans'",size:10,weight:'500'}, callback:v=>v+'mg' } }
+      }
+    }
+  });
+}
+
+/* ─ Wellness gauge ─ */
+function drawGauge(score) {
+  const canvas=document.getElementById('gaugeCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=160, H=84, cx=80, cy=80, r=64;
+  ctx.clearRect(0,0,W,H);
+  // Track
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+  ctx.strokeStyle='rgba(107,158,122,0.15)'; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+  // Fill
+  const pct=score/100;
+  const color=score>=80?'#6b9e7a':score>=60?'#9ec4aa':score>=40?'#c8955a':'#e8a090';
+  const grad=ctx.createLinearGradient(0,H,W,0);
+  grad.addColorStop(0,color); grad.addColorStop(1,score>=70?'#9ec4aa':'#f2c4a0');
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+pct*Math.PI);
+  ctx.strokeStyle=grad; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+  // Needle
+  const angle=Math.PI+pct*Math.PI;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+Math.cos(angle)*50, cy+Math.sin(angle)*50);
+  ctx.strokeStyle='#3d6e52'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#3d6e52'; ctx.fill();
+}
+
+/* ─ Counter ─ */
+function countUp(id,target,dur,dec=0) {
+  const el=document.getElementById(id);
+  let n=0; const step=target/(dur/16);
+  const t=setInterval(()=>{
+    n+=step;
+    if(n>=target){ el.textContent=dec?target.toFixed(dec):Math.round(target).toLocaleString(); clearInterval(t); }
+    else { el.textContent=dec?n.toFixed(dec):Math.round(n).toLocaleString(); }
+  },16);
+}
+
+/* ═══════════════════════════════════════════
+   IMPACT POSTER  —  Canvas Artwork
+═══════════════════════════════════════════ */
+function drawPoster(c) {
+  const canvas=document.getElementById('impactPoster');
+  const ctx=canvas.getContext('2d');
+  const W=800, H=1000;
+
+  // ── Dreamy gradient background ──
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,  '#0d1f15');
+  bg.addColorStop(0.3,'#152a20');
+  bg.addColorStop(0.6,'#1a1a2e');
+  bg.addColorStop(1,  '#0f1e25');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // ── Glow blobs ──
+  const blob=(x,y,r,col)=>{ const g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,col); g.addColorStop(1,'transparent'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); };
+  blob(150,220,280,'rgba(107,158,122,0.2)');
+  blob(680,750,240,'rgba(232,160,144,0.18)');
+  blob(720,180,200,'rgba(168,156,192,0.16)');
+  blob(80, 800,180,'rgba(128,176,204,0.14)');
+  blob(400,500,320,'rgba(107,158,122,0.06)');
+
+  // ── Grain texture ──
+  ctx.fillStyle='rgba(255,255,255,0.018)';
+  for(let i=0;i<2000;i++){ ctx.beginPath(); ctx.arc(Math.random()*W,Math.random()*H,0.7,0,Math.PI*2); ctx.fill(); }
+
+  // ── Decorative leaf silhouettes ──
+  const drawPosterLeaf=(x,y,sz,rot,op)=>{
+    ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.globalAlpha=op;
+    ctx.fillStyle='#6b9e7a';
+    ctx.beginPath(); ctx.moveTo(0,-sz); ctx.bezierCurveTo(sz*.8,-sz*.5,sz*.8,sz*.3,0,sz*.6); ctx.bezierCurveTo(-sz*.8,sz*.3,-sz*.8,-sz*.5,0,-sz); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=op*.5; ctx.strokeStyle='#9ec4aa'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,-sz); ctx.lineTo(0,sz*.6); ctx.stroke();
+    ctx.restore();
+  };
+  drawPosterLeaf(720,90,55,0.4,0.12);
+  drawPosterLeaf(80,920,42,-0.5,0.1);
+  drawPosterLeaf(740,600,35,1.1,0.08);
+  drawPosterLeaf(60,380,30,-0.8,0.09);
+  drawPosterLeaf(760,400,28,0.7,0.07);
+
+  // ── Top rule ──
+  ctx.strokeStyle='rgba(107,158,122,0.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,72); ctx.lineTo(W-60,72); ctx.stroke();
+
+  // ── Brand ──
+  ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.92)';
+  ctx.font='700 24px serif'; ctx.letterSpacing='5px';
+  ctx.fillText('S H W A S A',60,58);
+  ctx.textAlign='right'; ctx.fillStyle='rgba(158,196,170,0.6)';
+  ctx.font='500 12px sans-serif'; ctx.letterSpacing='2px';
+  ctx.fillText('AIR IMPACT REPORT · #SW-2847',W-60,58);
+  ctx.textAlign='left'; ctx.letterSpacing='0px';
+
+  // ── Date badge ──
+  roundRect(ctx,60,88,180,28,8,'rgba(107,158,122,0.18)','rgba(107,158,122,0.3)');
+  ctx.fillStyle='rgba(158,196,170,0.85)'; ctx.font='600 11px sans-serif';
+  ctx.fillText(`${c.days} days · ${c.hours} hrs/day · ${c.roomLabel}`,70,107);
+
+  // ── Giant cigarette hero number ──
+  ctx.fillStyle='rgba(255,255,255,0.28)'; ctx.font='600 13px sans-serif'; ctx.letterSpacing='3px';
+  ctx.fillText('CIGARETTES EQUIVALENT AVOIDED',60,170); ctx.letterSpacing='0px';
+
+  const cigStr=c.cigEq.toString();
+  const cigFontSize=cigStr.length>3?130:160;
+  ctx.font=`900 ${cigFontSize}px serif`;
+  const numMetrics=ctx.measureText(cigStr);
+  ctx.fillStyle='#ffffff'; ctx.fillText(cigStr,60,310);
+  const numRight=60+numMetrics.width;
+
+  ctx.font='60px serif'; ctx.fillText('🚬',numRight+10,290);
+  ctx.fillStyle='rgba(232,160,144,0.85)'; ctx.font='700 16px sans-serif';
+  ctx.fillText('≈ equiv. of particles',numRight+84,268);
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='500 13px sans-serif';
+  ctx.fillText('your lungs never breathed',numRight+84,292);
+
+  // ── Horizontal divider with leaf ──
+  ctx.strokeStyle='rgba(107,158,122,0.25)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,345); ctx.lineTo(380,345); ctx.stroke();
+  ctx.font='22px serif'; ctx.fillText('🍃',390,352);
+  ctx.beginPath(); ctx.moveTo(420,345); ctx.lineTo(W-60,345); ctx.stroke();
+
+  // ── 3 main stat tiles ──
+  const tiles=[
+    {val:c.airL.toLocaleString()+'L', lbl:'Air Purified',      icon:'💨', c0:'rgba(107,158,122,0.3)', c1:'rgba(158,196,170,0.1)'},
+    {val:c.totMg+'mg',                lbl:'Particles Blocked',  icon:'🛡', c0:'rgba(232,160,144,0.3)', c1:'rgba(242,196,160,0.1)'},
+    {val:'₹'+c.money,                 lbl:'Electricity Saved',  icon:'⚡', c0:'rgba(128,176,204,0.3)', c1:'rgba(168,156,192,0.1)'},
+  ];
+  const tW=208, tH=120, tY=368, tGap=18;
+  tiles.forEach((t,i)=>{
+    const tx=60+i*(tW+tGap);
+    const tg=ctx.createLinearGradient(tx,tY,tx+tW,tY+tH);
+    tg.addColorStop(0,t.c0); tg.addColorStop(1,t.c1);
+    roundRect(ctx,tx,tY,tW,tH,18,tg,'rgba(255,255,255,0.1)');
+    ctx.font='32px serif'; ctx.fillText(t.icon,tx+14,tY+44);
+    ctx.fillStyle='#ffffff'; ctx.font=`800 ${t.val.length>7?22:26}px sans-serif`;
+    ctx.fillText(t.val,tx+14,tY+82);
+    ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='500 12px sans-serif';
+    ctx.fillText(t.lbl,tx+14,tY+104);
+  });
+
+  // ── 4 secondary micro tiles ──
+  const smTiles=[
+    {val:c.trees,         lbl:'Tree Equiv.'},
+    {val:c.co2+' kg',     lbl:'CO₂ Avoided'},
+    {val:c.phones+'×',    lbl:'Phone Charges'},
+    {val:c.usedPct+'%',   lbl:'Layer Used'},
+  ];
+  const sY=510, sW=160, sH=78;
+  smTiles.forEach((t,i)=>{
+    const sx=60+i*(sW+16);
+    roundRect(ctx,sx,sY,sW,sH,14,'rgba(255,255,255,0.06)','rgba(255,255,255,0.1)');
+    ctx.fillStyle='#ffffff'; ctx.font='700 20px sans-serif';
+    ctx.fillText(t.val,sx+12,sY+36);
+    ctx.fillStyle='rgba(255,255,255,0.38)'; ctx.font='500 11px sans-serif';
+    ctx.fillText(t.lbl,sx+12,sY+58);
+  });
+
+  // ── Wellness score band ──
+  roundRect(ctx,60,614,W-120,70,16,'rgba(107,158,122,0.14)','rgba(107,158,122,0.25)');
+  ctx.fillStyle='rgba(158,196,170,0.7)'; ctx.font='600 11px sans-serif'; ctx.letterSpacing='2px';
+  ctx.fillText('WELLNESS SCORE',76,641); ctx.letterSpacing='0px';
+  ctx.fillStyle='#ffffff'; ctx.font='900 36px serif';
+  ctx.fillText(c.wellnessScore+' / 100',76,672);
+  // mini bar
+  roundRect(ctx,300,638,W-380,12,6,'rgba(255,255,255,0.08)',null);
+  const wg=ctx.createLinearGradient(300,0,300+(W-380)*c.wellnessScore/100,0);
+  wg.addColorStop(0,'#6b9e7a'); wg.addColorStop(1,'#9ec4aa');
+  roundRect(ctx,300,638,(W-380)*c.wellnessScore/100,12,6,wg,null);
+
+  // ── Wavy botanical lines ──
+  for(let row=0;row<6;row++){
+    ctx.beginPath(); ctx.strokeStyle=`rgba(107,158,122,${0.05+row*0.015})`; ctx.lineWidth=1;
+    const yB=720+row*20;
+    ctx.moveTo(60,yB);
+    for(let x=60;x<=W-60;x+=4){ ctx.lineTo(x, yB+Math.sin((x+row*50)*0.022)*8); }
+    ctx.stroke();
+  }
+
+  // ── Quote ──
+  ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.font='italic 700 28px serif';
+  wrapText(ctx,'"Every breath you take, cleaner."',60,840,W-120,40);
+  ctx.fillStyle='rgba(158,196,170,0.55)'; ctx.font='500 13px sans-serif';
+  ctx.fillText('— powered by activated charcoal curtain technology',60,890);
+
+  // ── Hashtags ──
+  ctx.fillStyle='rgba(168,156,192,0.75)'; ctx.font='600 13px sans-serif';
+  const room=(c.roomLabel||'').toLowerCase().replace(/\s/g,'');
+  ctx.fillText(`#shwasa  #cleanair  #breathe  #${room}  #airpurifier  #sustainableliving`,60,928);
+
+  // ── Bottom rule ──
+  ctx.strokeStyle='rgba(107,158,122,0.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,950); ctx.lineTo(W-60,950); ctx.stroke();
+
+  // ── Watermark ──
+  ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.font='500 12px sans-serif';
+  ctx.fillText('shwasa.in  ·  Activated Charcoal Curtain Purifier  ·  Breathe Better',W/2,978);
+  ctx.textAlign='left';
+}
+
+function roundRect(ctx,x,y,w,h,r,fill,stroke) {
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke(); }
+}
+
+function wrapText(ctx,text,x,y,maxW,lineH) {
+  const words=text.split(' '); let line='';
+  for(let i=0;i<words.length;i++){
+    const test=line+words[i]+' ';
+    if(ctx.measureText(test).width>maxW&&i>0){ ctx.fillText(line,x,y); line=words[i]+' '; y+=lineH; }
+    else { line=test; }
+  }
+  ctx.fillText(line,x,y);
+}
+
+function downloadPoster() {
+  const a=document.createElement('a');
+  a.download='shwasa-impact-badge.png';
+  a.href=document.getElementById('impactPoster').toDataURL('image/png');
+  a.click();
+}
+
+function handleShare() {
+  const btn=document.getElementById('shareBtn');
+  const text=`🍃 My Shwasa curtain blocked ${C.cigEq} cigarettes-worth of particles, cleaned ${C.airL.toLocaleString()}L of air & saved ₹${C.money} in electricity!\n#shwasa #cleanair #breathe`;
+  if(navigator.share){ navigator.share({title:'My Shwasa Impact',text}); }
+  else {
+    navigator.clipboard.writeText(text).then(()=>{
+      btn.textContent='✓ Copied!';
+      setTimeout(()=>{ btn.textContent='⬆ \u00a0Share'; },2500);
+    });
+  }
+}
+
+/* ─ Restart ─ */
+function restart() {
+  Object.assign(S,{roomType:null,length:12,width:10,height:9,hours:8,days:14});
+  step=1;
+  document.getElementById('resultsScreen').style.display='none';
+  document.getElementById('setupScreen').style.display='block';
+  document.getElementById('aqiWidget').style.display='flex';
+  document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('hSlider').value=8; document.getElementById('hVal').textContent=8;
+  document.getElementById('dSlider').value=14; document.getElementById('dVal').textContent=14;
+  document.getElementById('dL').value=12; document.getElementById('dW').value=10; document.getElementById('dH').value=9;
+  updateVol();
+  for(let i=2;i<=4;i++) document.getElementById('step'+i).style.display='none';
+  document.getElementById('step1').style.display='';
+  document.getElementById('nextBtn').textContent='Continue →';
+  document.getElementById('rBar').style.width='0%';
+  for(let i=1;i<=6;i++) document.getElementById('ls'+i).classList.remove('done');
+  refreshDots();
+  if(chartInstance){ chartInstance.destroy(); chartInstance=null; }
+}
+</script>
+</body>
+</html>
